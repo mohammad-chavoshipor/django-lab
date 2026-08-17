@@ -1,0 +1,27 @@
+# Static site / Django educational project
+# https://django.mchavoshipor.ir
+
+# Environment
+.env
+
+# Python
+__pycache__/
+*.pyc
+venv/
+venv/
+ENV/
+env/
+.env
+
+# Django database
+db.sqlite3
+
+# Media & static (collected)
+media/
+staticfiles/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
