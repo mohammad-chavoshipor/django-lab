@@ -21,6 +21,7 @@
     if (lang === 'sh' || lang === 'shell' || lang === 'console' || lang === 'terminal') lang = 'bash';
     if (lang === 'cfg' || lang === 'conf' || lang === 'toml' || lang === 'ini') lang = 'ini';
     if (lang === 'htmldjango' || lang === 'jinja' || lang === 'dtl') lang = 'html';
+    if (lang === 'js' || lang === 'javascript' || lang === 'json') lang = 'javascript';
 
     const fn = HL[lang] || HL.text;
     return fn(code);
@@ -96,7 +97,7 @@
       { re: '#[^\\n]*', cls: 'com' },
       { re: '"(?:\\\\.|[^"\\\\])*"', cls: 'str' },
       { re: "'[^']*'", cls: 'str' },
-      { re: '\\b(?:cd|ls|mkdir|rm|cp|mv|echo|cat|source|export|python|python3|pip|pip3|django-admin|manage|git|sudo|nano|code|workon|deactivate|venv|chmod|which|psql|heroku|npm|node)\\b', cls: 'kw' },
+      { re: '\\b(?:cd|ls|mkdir|rm|cp|mv|echo|cat|source|export|set|find|tar|gzip|date|python|python3|pip|pip3|django-admin|manage|git|sudo|nano|code|workon|deactivate|venv|chmod|which|psql|pg_dump|createdb|heroku|npm|node|gunicorn|uvicorn|systemctl|journalctl|nginx|certbot|apt|apt-get|docker|coverage|crontab|curl|ln|ruff|flake8|pytest)\\b', cls: 'kw' },
       { re: '(?<=^|\\s)--?[a-zA-Z][\\w-]*', cls: 'attr' },
       { re: '\\$\\(?[A-Za-z_][\\w]*\\)?', cls: 'var' },
     ];
@@ -108,7 +109,7 @@
     const rules = [
       { re: '--[^\\n]*', cls: 'com' },
       { re: "'(?:''|[^'])*'", cls: 'str' },
-      { re: '\\b(SELECT|FROM|WHERE|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|PRIMARY|KEY|FOREIGN|REFERENCES|NOT|NULL|DEFAULT|AUTOINCREMENT|AND|OR|JOIN|LEFT|RIGHT|INNER|OUTER|ON|GROUP|BY|ORDER|ASC|DESC|LIMIT|OFFSET|DISTINCT|COUNT|SUM|AVG|MAX|MIN|AS|INTEGER|TEXT|VARCHAR|BOOLEAN|DATETIME|SERIAL|INDEX|UNIQUE|ALTER|ADD|COLUMN|DROP|CONSTRAINT)\\b', cls: 'kw' },
+      { re: '\\b(SELECT|FROM|WHERE|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|PRIMARY|KEY|FOREIGN|REFERENCES|NOT|NULL|DEFAULT|AUTOINCREMENT|AND|OR|JOIN|LEFT|RIGHT|INNER|OUTER|ON|GROUP|BY|ORDER|ASC|DESC|LIMIT|OFFSET|DISTINCT|COUNT|SUM|AVG|MAX|MIN|AS|INTEGER|TEXT|VARCHAR|BOOLEAN|DATETIME|SERIAL|INDEX|UNIQUE|ALTER|ADD|COLUMN|DROP|CONSTRAINT|CHECK|DATABASE|USER|ROLE|GRANT|ALL|PRIVILEGES|WITH|PASSWORD|TO|NUMERIC|BIGINT|EXPLAIN|ANALYZE|BOOL)\\b', cls: 'kw' },
       { re: '\\b\\d+\\b', cls: 'num' },
     ];
     return runRules(s, rules);
@@ -122,6 +123,21 @@
       { re: '^\\[[^\\]]+\\]', cls: 'dec' },
       { re: '[A-Za-z_][\\w]*(?=\\s*=)', cls: 'attr' },
       { re: '(?<==)([^\\n]+)', cls: 'str' },
+    ];
+    return runRules(s, rules);
+  };
+
+  HL.javascript = function (code) {
+    let s = esc(code);
+    const rules = [
+      { re: '//[^\\n]*', cls: 'com' },
+      { re: '/\\*[\\s\\S]*?\\*/', cls: 'com' },
+      { re: '`(?:\\\\.|[^`\\\\])*`', cls: 'str' },
+      { re: '"(?:\\\\.|[^"\\\\])*"', cls: 'str' },
+      { re: "'(?:\\\\.|[^'\\\\])*'", cls: 'str' },
+      { re: '\\b\\d+\\.?\\d*\\b', cls: 'num' },
+      { re: '\\b(?:const|let|var|function|return|if|else|for|while|of|in|new|class|extends|import|from|export|default|async|await|try|catch|finally|throw|typeof|instanceof|null|undefined|true|false|this)\\b', cls: 'kw' },
+      { re: '\\b[A-Za-z_$][A-Za-z0-9_$]*(?=\\()', cls: 'fn' },
     ];
     return runRules(s, rules);
   };

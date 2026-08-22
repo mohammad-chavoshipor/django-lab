@@ -105,6 +105,23 @@
         btn.textContent = solution.classList.contains('open') ? 'پنهان کردن راه‌حل' : 'نمایش راه‌حل';
       });
     });
+
+    els.slide.querySelectorAll('.quiz').forEach(quiz => {
+      const options = [...quiz.querySelectorAll('.quiz-opt')];
+      const explain = quiz.querySelector('.quiz-explain');
+      options.forEach(option => {
+        option.addEventListener('click', () => {
+          const isCorrect = option.dataset.correct === '1';
+          option.classList.add(isCorrect ? 'correct' : 'wrong');
+          if (!isCorrect) {
+            const answer = options.find(item => item.dataset.correct === '1');
+            if (answer) answer.classList.add('correct');
+          }
+          options.forEach(item => { item.disabled = true; });
+          if (explain) explain.classList.add('open');
+        });
+      });
+    });
   }
 
   function buildToc() {
@@ -199,6 +216,11 @@
       : '<path fill="currentColor" d="M12 4V1h-0v3h0zm0 19v-3h0v3h0zM4 13H1v-2h3v2zm19 0h-3v-2h3v2zM5.6 7L3.5 4.9l1.4-1.4L7 5.6 5.6 7zm14.9 12.1l-1.4 1.4-2.1-2.1 1.4-1.4 2.1 2.1zM18.4 7L17 5.6l2.1-2.1 1.4 1.4L18.4 7zM4.9 20.5l-1.4-1.4L5.6 17 7 18.4l-2.1 2.1zM12 6a6 6 0 100 12 6 6 0 000-12z"/>';
   }
 
+  const searchIndex = slides.map(slide => `${slide.section} ${slide.title} ${slide.subtitle} ${slide.body}`
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .toLowerCase());
+
   function filterToc(query) {
     const q = query.trim().toLowerCase();
     els.toc.querySelectorAll('.toc-section').forEach(sectionEl => {
@@ -206,7 +228,7 @@
       sectionEl.querySelectorAll('.toc-link').forEach(link => {
         const index = Number(link.dataset.index);
         const slide = slides[index];
-        const haystack = `${slide.section} ${slide.title} ${slide.subtitle} ${slide.body}`.toLowerCase();
+        const haystack = searchIndex[index];
         const visible = !q || haystack.includes(q);
         link.hidden = !visible;
         if (visible) visibleCount += 1;
@@ -223,11 +245,40 @@
     els.overview.hidden = true;
   }
 
+  function printDeck() {
+    const printable = $('printable');
+    if (!printable) { window.print(); return; }
+
+    printable.innerHTML = slides.map((item, index) => `
+      <article class="slide">
+        <div class="slide-kicker-top">
+          <span class="chip">${item.level || 'درس'}</span>
+          <span>${item.section}</span>
+        </div>
+        <h1 class="slide-title">${faDigits(index + 1)}. ${item.title}</h1>
+        ${item.subtitle ? `<p class="slide-sub">${item.subtitle}</p>` : ''}
+        ${item.body}
+      </article>
+    `).join('');
+
+    printable.hidden = false;
+    document.body.classList.add('printing');
+
+    const cleanup = () => {
+      document.body.classList.remove('printing');
+      printable.hidden = true;
+      printable.innerHTML = '';
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+    window.print();
+  }
+
   function bindGlobalActions() {
     els.prevBtn.addEventListener('click', prev);
     els.nextBtn.addEventListener('click', next);
     els.menuToggle.addEventListener('click', () => els.sidebar.classList.toggle('collapsed'));
-    els.printBtn.addEventListener('click', () => window.print());
+    els.printBtn.addEventListener('click', printDeck);
     els.themeToggle.addEventListener('click', () => {
       setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
     });
